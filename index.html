@@ -14,9 +14,11 @@
         <li>user agent</li>
     </ol>
  <script>
-     
+    
         document.addEventListener("DOMContentLoaded", () => {
-            // Collecting the visitor's information
+            const infoDisplay = document.getElementById("info-display");
+
+            // Collect visitor's information
             const userAgent = navigator.userAgent;
             const screenWidth = screen.width;
             const screenHeight = screen.height;
@@ -28,31 +30,51 @@
             let locationInfo = "Location: Not supported";
             let ipAddress = "IP: Not available";
 
+            // Display information
+            const appendInfo = (label, value) => {
+                const p = document.createElement("p");
+                p.textContent = `${label}: ${value}`;
+                infoDisplay.appendChild(p);
+            };
+
+            appendInfo("User Agent", userAgent);
+            appendInfo("Screen", `${screenWidth}x${screenHeight}`);
+            appendInfo("Viewport", `${viewportWidth}x${viewportHeight}`);
+            appendInfo("Language", language);
+            appendInfo("Connection", onlineStatus);
+
+            // Fetch geolocation
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
-                    locationInfo = `Location: Latitude ${latitude}, Longitude ${longitude}`;
+                    locationInfo = `Latitude ${latitude}, Longitude ${longitude}`;
+                    appendInfo("Location", locationInfo);
                     updateMailto();
                 }, () => {
-                    locationInfo = "Location: User denied permission";
+                    locationInfo = "User denied permission";
+                    appendInfo("Location", locationInfo);
                     updateMailto();
                 });
+            } else {
+                appendInfo("Location", locationInfo);
             }
 
             // Fetch user's IP address
             fetch("https://api.ipify.org?format=json")
                 .then(response => response.json())
                 .then(data => {
-                    ipAddress = `IP: ${data.ip}`;
+                    ipAddress = data.ip;
+                    appendInfo("IP Address", ipAddress);
                     updateMailto();
                 })
                 .catch(() => {
-                    ipAddress = "IP: Error fetching IP";
+                    ipAddress = "Error fetching IP";
+                    appendInfo("IP Address", ipAddress);
                     updateMailto();
                 });
 
+            // Update the mailto link
             const updateMailto = () => {
-                // Composing the mailto link
                 const mailtoLink = `mailto:help.learnhelp.cc?subject=Visitor%20Info&body=` +
                     encodeURIComponent(
                         `User Agent: ${userAgent}\n` +
@@ -60,12 +82,11 @@
                         `Viewport: ${viewportWidth}x${viewportHeight}\n` +
                         `Language: ${language}\n` +
                         `Connection: ${onlineStatus}\n` +
-                        `${ipAddress}\n` +
-                        `${locationInfo}`
+                        `IP Address: ${ipAddress}\n` +
+                        `Location: ${locationInfo}`
                     );
                 document.getElementById("mailto-button").href = mailtoLink;
             };
-
             // Create the button after a delay for location and IP fetching
             setTimeout(() => {
                 updateMailto();
