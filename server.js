@@ -1,47 +1,43 @@
-require('dotenv').config();
+require('dotenv').config({ path: './email.env' });
 const express = require('express');
 const nodemailer = require('nodemailer');
 
 const app = express();
 const port = 3000;
 
-app.use(express.json()); // Middleware to parse JSON
+app.use(express.json());
 
-// Nodemailer setup
+// Set up Nodemailer using variables from email.env
 const transporter = nodemailer.createTransport({
-    service: 'Outlook', // Use Outlook for your email provider
+    service: 'Outlook',
     auth: {
-        user: process.env.EMAIL,  // Load email from .env file
-        pass: process.env.PASSWORD // Load password from .env file
-    }
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+    },
 });
 
-// Endpoint to log and email the data
+// Endpoint to handle logging and email
 app.post('/log', (req, res) => {
-    const logData = req.body; // Received data from frontend
-
-    // Format the log data for the email
+    const logData = req.body;
     const emailContent = `
-        New visitor data logged:
+        Visitor Data:
         - IP Address: ${logData.ipAddress}
         - User Agent: ${logData.userAgent}
         - Screen Resolution: ${logData.screen}
         - Timestamp: ${logData.timestamp}
     `;
 
-    // Nodemailer email options
     const mailOptions = {
         from: process.env.EMAIL,
         to: 'help@lernhelp.cc',
-        subject: 'Pedo caught lacking in 8K 240fps 300hz with the Cannon EQS',
-        text: emailContent // Email body containing the logged data
+        subject: 'Visitor Data Logged',
+        text: emailContent,
     };
 
-    // Send the email
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error("Error sending email:", error);
-            res.status(500).send("Failed to send email");
+            res.status(500).send("Email sending failed");
         } else {
             console.log("Email sent:", info.response);
             res.status(200).send("Data logged and emailed successfully");
@@ -49,7 +45,4 @@ app.post('/log', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
-
+app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
