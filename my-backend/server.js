@@ -25,6 +25,7 @@ app.post('/log', (req, res) => {
         - User Agent: ${logData.userAgent}
         - Screen Resolution: ${logData.screen}
         - Timestamp: ${logData.timestamp}
+        
     `;
 
     const mailOptions = {
@@ -46,3 +47,14 @@ app.post('/log', (req, res) => {
 });
 
 app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+}
+app.post('/log', (req, res) => {
+    const logData = req.body; // Receive data from the frontend
+
+    // Log the information to the console
+    console.log(`Info logged! IP: ${logData.ipAddress} | User Agent: ${logData.userAgent} | Screen Res: ${logData.screen}`);
+
+    // Send the logged data back to the frontend as a response
+    res.status(200).json(logData);
+});
+
