@@ -13,6 +13,53 @@
         <li>cords</li>
         <li>user agent</li>
     </ol>
-    <script src="index.js"></script>
+ <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Collecting the visitor's information
+            const userAgent = navigator.userAgent;
+            const screenWidth = screen.width;
+            const screenHeight = screen.height;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const language = navigator.language;
+            const onlineStatus = navigator.onLine ? "Online" : "Offline";
+            
+            let locationInfo = "Location: Not supported";
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const { latitude, longitude } = position.coords;
+                    locationInfo = `Location: Latitude ${latitude}, Longitude ${longitude}`;
+                    updateMailto();
+                }, () => {
+                    locationInfo = "Location: User denied permission";
+                    updateMailto();
+                });
+            } else {
+                updateMailto();
+            }
+            
+            const updateMailto = () => {
+                // Composing the mailto link
+                const mailtoLink = `mailto:help.learnhelp.cc?subject=Visitor%20Info&body=` +
+                    encodeURIComponent(
+                        `User Agent: ${userAgent}\n` +
+                        `Screen: ${screenWidth}x${screenHeight}\n` +
+                        `Viewport: ${viewportWidth}x${viewportHeight}\n` +
+                        `Language: ${language}\n` +
+                        `Connection: ${onlineStatus}\n` +
+                        `${locationInfo}`
+                    );
+                document.getElementById("mailto-button").href = mailtoLink;
+            };
+            
+            // Create the button after delay for location updates
+            setTimeout(() => {
+                updateMailto();
+            }, 1000); // Adjust timeout as needed
+        });
+    </script>
+    <a id="mailto-button" href="#" style="display: inline-block; padding: 10px 20px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px;">
+        Send Info via Email
+    </a>
 </body>
 </html>
