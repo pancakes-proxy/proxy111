@@ -1,5 +1,5 @@
 # PRED CATCHER PRO
-note: if you want to use the email feature edit ``server.js`` 
+note: if you want to use the email feature edit ``email.env`` 
 1st fork the repo (make sure you got a account!)
 2nd got to settings - pages 
 3rd deploy!
